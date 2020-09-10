@@ -1,2 +1,2 @@
-# data-science-
-this project is to use data to bulit model 
+#  capstone project
+this notebook will be mainly used for the capstone project.

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线AI城建系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .module-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .module-description {
+            color: #666;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .module-features {
+            list-style: none;
+            color: #888;
+        }
+
+        .module-features li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .module-features li::before {
+            content: '•';
+            color: #667eea;
+            position: absolute;
+            left: 0;
+        }
+
+        .content-area {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .back-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-success {
+            background: #52c41a;
+        }
+
+        .btn-success:hover {
+            background: #45a817;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="homePage">
+        <div class="header">
+            <h1>在线AI城建系统</h1>
+            <p>智能化城市建设项目管理平台</p>
+        </div>
+        
+        <div class="module-grid">
+            <div class="module-card" onclick="showBasicData()">
+                <div class="module-icon">📊</div>
+                <div class="module-title">基础数据</div>
+                <div class="module-description">管理项目基础数据，包括项目信息、资金安排等</div>
+                <ul class="module-features">
+                    <li>项目基本信息表</li>
+                    <li>资金安排表</li>
+                    <li>重点项目清单</li>
+                    <li>Excel批量导入导出</li>
+                </ul>
+            </div>
+
+            <div class="module-card" onclick="showSmartReports()">
+                <div class="module-icon">📈</div>
+                <div class="module-title">智慧报表生成</div>
+                <div class="module-description">基于数据生成智能化分析报表</div>
+                <ul class="module-features">
+                    <li>智慧报表总表</li>
+                    <li>资金来源细分统计</li>
+                    <li>项目资金汇总分析</li>
+                    <li>多维度数据展示</li>
+                </ul>
+            </div>
+
+            <div class="module-card" onclick="showThirdModule()">
+                <div class="module-icon">📋</div>
+                <div class="module-title">第三模块</div>
+                <div class="module-description">预留扩展模块，可根据需要添加功能</div>
+                <ul class="module-features">
+                    <li>功能待定</li>
+                    <li>可扩展设计</li>
+                    <li>灵活配置</li>
+                    <li>用户自定义</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 基础数据模块 -->
+    <div id="basicDataPage" class="content-area">
+        <button class="back-btn" onclick="showHome()">← 返回主页</button>
+        <h2>基础数据管理</h2>
+        <p style="margin-bottom: 20px;">管理城建项目的基础数据，支持Excel导入导出</p>
+        
+        <button class="btn btn-success" onclick="generateMockData()">🚀 生成模拟数据</button>
+        
+        <div style="margin-top: 30px;">
+            <button class="btn" onclick="showProjectInfo()">项目基本信息表</button>
+            <button class="btn" onclick="showFundingTable()">资金安排表</button>
+            <button class="btn" onclick="showKeyProjects()">重点项目清单</button>
+        </div>
+
+        <div id="dataDisplay" style="margin-top: 30px;"></div>
+    </div>
+
+    <!-- 智慧报表模块 -->
+    <div id="reportsPage" class="content-area">
+        <button class="back-btn" onclick="showHome()">← 返回主页</button>
+        <h2>智慧报表生成</h2>
+        
+        <div id="statsDisplay"></div>
+        <div id="reportTables"></div>
+    </div>
+
+    <!-- 第三模块 -->
+    <div id="thirdPage" class="content-area">
+        <button class="back-btn" onclick="showHome()">← 返回主页</button>
+        <h2>第三模块</h2>
+        <p>此模块预留用于未来功能扩展。</p>
+    </div>
+
+    <!-- 添加/编辑模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">添加项目</h3>
+            <div id="modalForm"></div>
+            <button class="btn" onclick="saveData()">保存</button>
+            <button class="btn" onclick="closeModal()">取消</button>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储
+        let projectData = [];
+        let fundingData = [];
+        let keyProjectsData = [];
+
+        // 资金来源配置
+        const fundingSources = [
+            {value: '地方-一般债券', nature: '地方'},
+            {value: '地方-专项债券', nature: '地方'},
+            {value: '地方-土地出让金', nature: '地方'},
+            {value: '地方-一般公共预算', nature: '地方'},
+            {value: '中央-中央预算内投资', nature: '中央'},
+            {value: '中央-中央补助', nature: '中央'},
+            {value: '中央-中央专项', nature: '中央'},
+            {value: '中央-国债', nature: '中央'},
+            {value: '中央-超长期国债', nature: '中央'},
+            {value: '中央-抗疫特别国债', nature: '中央'},
+            {value: '省级-省级补助', nature: '省级'},
+            {value: '省级-省级专项', nature: '省级'}
+        ];
+
+        // 页面导航
+        function showHome() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('basicDataPage').style.display = 'none';
+            document.getElementById('reportsPage').style.display = 'none';
+            document.getElementById('thirdPage').style.display = 'none';
+        }
+
+        function showBasicData() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('basicDataPage').style.display = 'block';
+            document.getElementById('reportsPage').style.display = 'none';
+            document.getElementById('thirdPage').style.display = 'none';
+        }
+
+        function showSmartReports() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('basicDataPage').style.display = 'none';
+            document.getElementById('reportsPage').style.display = 'block';
+            document.getElementById('thirdPage').style.display = 'none';
+            generateReports();
+        }
+
+        function showThirdModule() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('basicDataPage').style.display = 'none';
+            document.getElementById('reportsPage').style.display = 'none';
+            document.getElementById('thirdPage').style.display = 'block';
+        }
+
+        // 生成模拟数据
+        function generateMockData() {
+            if (confirm('这将生成200个项目和1000条资金安排记录，确定要继续吗？')) {
+                // 生成项目数据
+                projectData = [];
+                for (let i = 0; i < 200; i++) {
+                    projectData.push({
+                        id: i + 1,
+                        projectName: `城市建设项目${i + 1}`,
+                        projectCode: `2024A${String(i + 1).padStart(4, '0')}`,
+                        area: ['市辖区', '开发区', '高新区', '经济区'][Math.floor(Math.random() * 4)],
+                        category: ['基础设施', '民生工程', '产业项目', '环保项目'][Math.floor(Math.random() * 4)],
+                        constructionUnit: ['市政府', '区政府', '国有企业'][Math.floor(Math.random() * 3)],
+                        department: ['发改委', '住建局', '交通局', '水利局'][Math.floor(Math.random() * 4)],
+                        budgetAmount: Math.floor(Math.random() * 19500) + 500,
+                        status: ['在建', '续建', '完工', '暂停'][Math.floor(Math.random() * 4)]
+                    });
+                }
+
+                // 生成资金安排数据
+                fundingData = [];
+                for (let i = 0; i < 1000; i++) {
+                    const project = projectData[Math.floor(Math.random() * projectData.length)];
+                    const source = fundingSources[Math.floor(Math.random() * fundingSources.length)];
+                    fundingData.push({
+                        id: i + 1,
+                        projectName: project.projectName,
+                        projectCode: project.projectCode,
+                        area: project.area,
+                        category: project.category,
+                        constructionUnit: project.constructionUnit,
+                        department: project.department,
+                        budgetAmount: project.budgetAmount,
+                        fundingAmount: Math.floor(Math.random() * 5000) + 100,
+                        fundingSource: source.value,
+                        fundingNature: source.nature,
+                        status: project.status
+                    });
+                }
+
+                // 生成重点项目数据
+                keyProjectsData = [];
+                for (let i = 0; i < 60; i++) {
+                    const project = projectData[i];
+                    keyProjectsData.push({
+                        id: i + 1,
+                        projectName: project.projectName,
+                        projectCode: project.projectCode,
+                        area: project.area,
+                        category: project.category,
+                        priorityLevel: ['国家级', '省级', '市级', '区级'][Math.floor(Math.random() * 4)],
+                        constructionUnit: project.constructionUnit,
+                        department: project.department,
+                        totalInvestment: project.budgetAmount,
+                        status: project.status
+                    });
+                }
+
+                alert('模拟数据生成成功！生成了200个项目、1000条资金安排记录和60个重点项目。');
+            }
+        }
+
+        // 显示项目信息表
+        function showProjectInfo() {
+            const display = document.getElementById('dataDisplay');
+            display.innerHTML = `
+                <h3>项目基本信息表 (${projectData.length} 条记录)</h3>
+                <button class="btn" onclick="exportData('project')">导出Excel</button>
+                <div style="overflow-x: auto; margin-top: 20px;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>项目编码</th>
+                                <th>所属区域</th>
+                                <th>项目类别</th>
+                                <th>建设单位</th>
+                                <th>项目主管部门</th>
+                                <th>概算批复金额(万元)</th>
+                                <th>项目状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${projectData.slice(0, 20).map(item => `
+                                <tr>
+                                    <td>${item.projectName}</td>
+                                    <td>${item.projectCode}</td>
+                                    <td>${item.area}</td>
+                                    <td>${item.category}</td>
+                                    <td>${item.constructionUnit}</td>
+                                    <td>${item.department}</td>
+                                    <td>${item.budgetAmount.toLocaleString()}</td>
+                                    <td>${item.status}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <p style="margin-top: 10px; color: #666;">显示前20条记录，共${projectData.length}条</p>
+            `;
+        }
+
+        // 显示资金安排表
+        function showFundingTable() {
+            const display = document.getElementById('dataDisplay');
+            display.innerHTML = `
+                <h3>资金安排表 (${fundingData.length} 条记录)</h3>
+                <button class="btn" onclick="exportData('funding')">导出Excel</button>
+                <div style="overflow-x: auto; margin-top: 20px;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>项目编码</th>
+                                <th>所属区域</th>
+                                <th>资金批复金额(万元)</th>
+                                <th>资金具体来源</th>
+                                <th>资金性质</th>
+                                <th>项目状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${fundingData.slice(0, 20).map(item => `
+                                <tr>
+                                    <td>${item.projectName}</td>
+                                    <td>${item.projectCode}</td>
+                                    <td>${item.area}</td>
+                                    <td>${item.fundingAmount.toLocaleString()}</td>
+                                    <td>${item.fundingSource}</td>
+                                    <td><span style="color: ${item.fundingNature === '地方' ? '#52c41a' : item.fundingNature === '中央' ? '#1890ff' : '#722ed1'}">${item.fundingNature}</span></td>
+                                    <td>${item.status}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <p style="margin-top: 10px; color: #666;">显示前20条记录，共${fundingData.length}条</p>
+            `;
+        }
+
+        // 显示重点项目清单
+        function showKeyProjects() {
+            const display = document.getElementById('dataDisplay');
+            display.innerHTML = `
+                <h3>重点项目清单 (${keyProjectsData.length} 条记录)</h3>
+                <button class="btn" onclick="exportData('keyProjects')">导出Excel</button>
+                <div style="overflow-x: auto; margin-top: 20px;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>项目编码</th>
+                                <th>所属区域</th>
+                                <th>项目类别</th>
+                                <th>重点等级</th>
+                                <th>总投资(万元)</th>
+                                <th>项目状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${keyProjectsData.slice(0, 20).map(item => `
+                                <tr>
+                                    <td>${item.projectName}</td>
+                                    <td>${item.projectCode}</td>
+                                    <td>${item.area}</td>
+                                    <td>${item.category}</td>
+                                    <td><span style="background: ${item.priorityLevel === '国家级' ? '#f50' : item.priorityLevel === '省级' ? '#2db7f5' : item.priorityLevel === '市级' ? '#87d068' : '#108ee9'}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">${item.priorityLevel}</span></td>
+                                    <td>${item.totalInvestment.toLocaleString()}</td>
+                                    <td>${item.status}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <p style="margin-top: 10px; color: #666;">显示前20条记录，共${keyProjectsData.length}条</p>
+            `;
+        }
+
+        // 生成报表
+        function generateReports() {
+            if (fundingData.length === 0) {
+                document.getElementById('statsDisplay').innerHTML = `
+                    <div style="text-align: center; padding: 50px;">
+                        <h3>没有数据</h3>
+                        <p>请先在基础数据模块中生成模拟数据</p>
+                        <button class="btn" onclick="showBasicData()">前往基础数据</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // 计算统计数据
+            const totalProjects = new Set(fundingData.map(item => item.projectCode)).size;
+            const totalFunding = fundingData.reduce((sum, item) => sum + item.fundingAmount, 0);
+            const localFunding = fundingData.filter(item => item.fundingNature === '地方').reduce((sum, item) => sum + item.fundingAmount, 0);
+            const centralFunding = fundingData.filter(item => item.fundingNature === '中央').reduce((sum, item) => sum + item.fundingAmount, 0);
+            const provincialFunding = fundingData.filter(item => item.fundingNature === '省级').reduce((sum, item) => sum + item.fundingAmount, 0);
+
+            // 显示统计概览
+            document.getElementById('statsDisplay').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${totalProjects}</div>
+                        <div class="stat-label">项目总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${totalFunding.toLocaleString()}</div>
+                        <div class="stat-label">资金总额(万元)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${localFunding.toLocaleString()}</div>
+                        <div class="stat-label">地方资金(万元)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${centralFunding.toLocaleString()}</div>
+                        <div class="stat-label">中央资金(万元)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${provincialFunding.toLocaleString()}</div>
+                        <div class="stat-label">省级资金(万元)</div>
+                    </div>
+                </div>
+            `;
+
+            // 生成项目汇总表
+            const projectSummary = {};
+            fundingData.forEach(item => {
+                if (!projectSummary[item.projectCode]) {
+                    projectSummary[item.projectCode] = {
+                        projectName: item.projectName,
+                        projectCode: item.projectCode,
+                        area: item.area,
+                        category: item.category,
+                        localFunding: 0,
+                        centralFunding: 0,
+                        provincialFunding: 0,
+                        totalFunding: 0
+                    };
+                }
+                
+                const summary = projectSummary[item.projectCode];
+                if (item.fundingNature === '地方') {
+                    summary.localFunding += item.fundingAmount;
+                } else if (item.fundingNature === '中央') {
+                    summary.centralFunding += item.fundingAmount;
+                } else if (item.fundingNature === '省级') {
+                    summary.provincialFunding += item.fundingAmount;
+                }
+                summary.totalFunding = summary.localFunding + summary.centralFunding + summary.provincialFunding;
+            });
+
+            const summaryArray = Object.values(projectSummary);
+
+            // 显示报表
+            document.getElementById('reportTables').innerHTML = `
+                <h3>智慧报表总表</h3>
+                <button class="btn" onclick="exportData('summary')">导出总表</button>
+                <div style="overflow-x: auto; margin-top: 20px;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>项目编码</th>
+                                <th>所属区域</th>
+                                <th>项目类别</th>
+                                <th>地方资金(万元)</th>
+                                <th>中央资金(万元)</th>
+                                <th>省级资金(万元)</th>
+                                <th>资金总计(万元)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${summaryArray.slice(0, 20).map(item => `
+                                <tr>
+                                    <td>${item.projectName}</td>
+                                    <td>${item.projectCode}</td>
+                                    <td>${item.area}</td>
+                                    <td>${item.category}</td>
+                                    <td>${item.localFunding.toLocaleString()}</td>
+                                    <td>${item.centralFunding.toLocaleString()}</td>
+                                    <td>${item.provincialFunding.toLocaleString()}</td>
+                                    <td><strong>${item.totalFunding.toLocaleString()}</strong></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <p style="margin-top: 10px; color: #666;">显示前20条记录，共${summaryArray.length}个项目</p>
+            `;
+        }
+
+        // 导出数据（模拟功能）
+        function exportData(type) {
+            let data, filename;
+            switch(type) {
+                case 'project':
+                    data = projectData;
+                    filename = '项目基本信息表.csv';
+                    break;
+                case 'funding':
+                    data = fundingData;
+                    filename = '资金安排表.csv';
+                    break;
+                case 'keyProjects':
+                    data = keyProjectsData;
+                    filename = '重点项目清单.csv';
+                    break;
+                case 'summary':
+                    // 生成汇总数据
+                    const projectSummary = {};
+                    fundingData.forEach(item => {
+                        if (!projectSummary[item.projectCode]) {
+                            projectSummary[item.projectCode] = {
+                                projectName: item.projectName,
+                                projectCode: item.projectCode,
+                                area: item.area,
+                                category: item.category,
+                                localFunding: 0,
+                                centralFunding: 0,
+                                provincialFunding: 0,
+                                totalFunding: 0
+                            };
+                        }
+                        
+                        const summary = projectSummary[item.projectCode];
+                        if (item.fundingNature === '地方') {
+                            summary.localFunding += item.fundingAmount;
+                        } else if (item.fundingNature === '中央') {
+                            summary.centralFunding += item.fundingAmount;
+                        } else if (item.fundingNature === '省级') {
+                            summary.provincialFunding += item.fundingAmount;
+                        }
+                        summary.totalFunding = summary.localFunding + summary.centralFunding + summary.provincialFunding;
+                    });
+                    data = Object.values(projectSummary);
+                    filename = '智慧报表总表.csv';
+                    break;
+            }
+            
+            if (data && data.length > 0) {
+                alert(`准备导出 ${filename}，共 ${data.length} 条记录。\n\n注意：这是演示版本，实际导出功能需要完整版系统支持。`);
+            } else {
+                alert('没有数据可导出，请先生成模拟数据。');
+            }
+        }
+
+        // 模态框操作
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function saveData() {
+            alert('保存功能在完整版系统中可用。');
+            closeModal();
+        }
+
+        // 初始化
+        window.onload = function() {
+            showHome();
+        };
+    </script>
+</body>
+</html>

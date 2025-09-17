@@ -14,7 +14,14 @@
     "format:check": "prettier --check src/**/*.{js,jsx,css,md}",
     "serve": "node server.js",
     "clean": "rm -rf dist",
-    "analyze": "npm run build && npx vite-bundle-analyzer"
+    "analyze": "npm run build && npx vite-bundle-analyzer",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:netlify": "./scripts/deploy.sh netlify",
+    "deploy:vercel": "./scripts/deploy.sh vercel",
+    "deploy:gh-pages": "./scripts/deploy.sh github-pages",
+    "lighthouse": "lhci autorun",
+    "size-check": "size-limit",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
@@ -40,7 +47,9 @@
     "prettier": "^3.1.0",
     "terser": "^5.44.0",
     "vite": "^5.0.8",
-    "vite-bundle-analyzer": "^0.7.0"
+    "vite-bundle-analyzer": "^0.7.0",
+    "vite-plugin-pwa": "^1.0.3",
+    "workbox-window": "^7.3.0"
   },
   "browserslist": {
     "production": [

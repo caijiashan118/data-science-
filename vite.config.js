@@ -34,7 +34,7 @@ export default defineConfig(({ command, mode }) => {
         }
       })
     ],
-    base: process.env.NODE_ENV === 'production' ? '/data-science-/' : '/',
+    base: '/',
     server: {
       port: 3000,
       host: true,
